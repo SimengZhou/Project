@@ -165,6 +165,7 @@ def main():
 
             elif answer.startswith("quit"):                 # quit the game
                 quit_game()
+                break
 
             elif answer.startswith("help"):                 # Extension: show help
                 show_help()
