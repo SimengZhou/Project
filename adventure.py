@@ -65,7 +65,7 @@ def print_info(cur_room):
         print(key, end = " ")  
     print("\n")
 
-def go(answer):
+def go(answer, cur_room):
     parts = answer.split(" ", 1)
     if len(parts) < 2 or not parts[1]:
         print("Sorry, you need to 'go' somewhere.")
@@ -79,8 +79,9 @@ def go(answer):
         return
     
     print(f"You go {direction}")
-    cur_room = room_info["exits"].get(direction)
     print_info(cur_room)
+
+    return room_info["exits"].get(direction)
 
 def get(answer, cur_room):
     parts = answer.split(" ", 1)
@@ -149,7 +150,7 @@ def main():
         try:
             answer = input("What would you like to do?").strip().lower()
             if answer.startswith("go"):                     # go somewhere
-                go(answer)
+                cur_room = go(answer, cur_room)
 
             elif answer.startswith("look"):                 # look around the room
                 print_info(cur_room)
