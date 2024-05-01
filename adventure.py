@@ -79,9 +79,10 @@ def go(answer, cur_room):
         return
     
     print(f"You go {direction}")
+    cur_room = room_info["exits"].get(direction)
     print_info(cur_room)
 
-    return room_info["exits"].get(direction)
+    return cur_room
 
 def get(answer, cur_room):
     parts = answer.split(" ", 1)
