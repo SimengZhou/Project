@@ -52,7 +52,7 @@ def validate_map(map_data):
         print(e, file=sys.stderr)
         return False
     
-def print_info(cur_room, map_data):
+def print_info(cur_room):
     room_info = next((room for room in map_data.get("rooms", []) if room["name"] == cur_room), {})
     print("> " + room_info["name"] + "\n")
     print(room_info["desc"] + "\n")
@@ -65,11 +65,123 @@ def print_info(cur_room, map_data):
         print(key, end = " ")  
     print("\n")
 
+def go(answer):
+    parts = answer.split(" ", 1)
+    if len(parts) < 2 or not parts[1]:
+        print("Sorry, you need to 'go' somewhere.")
+        return
+
+    direction = parts[1]
+    room_info = next((room for room in map_data.get("rooms", []) if room["name"] == cur_room), {})
+    exits = room_info.get("exits", {})
+    if direction not in exits:
+        print(f"There's no way to go {direction}.")
+        return
+    
+    print(f"You go {direction}")
+    cur_room = room_info["exits"].get(direction)
+    print_info(cur_room)
+
+def get(answer, cur_room):
+    parts = answer.split(" ", 1)
+    if len(parts) < 2 or not parts[1]:
+        print("Sorry, you need to 'get' something.")
+        return
+
+    get_item = parts[1]
+    room_info = next((room for room in map_data.get("rooms", []) if room["name"] == cur_room), {})
+    if "items" not in room_info or not room_info["items"]:
+        print(f"There's no {get_item} anywhere.")
+        return
+
+    print(f"You pick up the {get_item}")
+    inventory.append(get_item)
+    room_info["items"].remove(get_item)
+
+def drop(answer,cur_room):
+    if not inventory:
+        print("You don't have any item.")
+        return
+
+    parts = answer.split(" ", 1)
+    if len(parts) < 2 or not parts[1]:
+        print("Sorry, you need to 'drop' something.")
+        return
+
+    drop_item = parts[1]
+    if drop_item not in inventory:
+        print(f"You don't have {drop_item}")
+        return
+
+    room_info = next((room for room in map_data.get("rooms", []) if room["name"] == cur_room), {})
+    if "items" not in room_info:
+        room_info["items"] = []
+
+    print(f"You drop the {drop_item}")
+    inventory.remove(drop_item)
+    room_info["items"].append(drop_item)
+
+def show_inventory(answer):
+    print("Inventory: ")
+    for item in inventory:
+        print("  " + item, end = "\n")
+
+def quit_game():
+    print("Goodbye!")
+    return
+
+def show_help():
+    print("You can run the following commands: ")
+    for verb, target in verbs.items():
+        if target:
+            print(f"  {verb} ...")
+        else:
+            print(f"  {verb}")
+
 def main():
+    # Print the first room
+    start_room = map_data["start"]
+    print_info(start_room)
+    cur_room = start_room
+
+    # Play the game
+    while True:
+        try:
+            answer = input("What would you like to do?").strip().lower()
+            if answer.startswith("go"):                     # go somewhere
+                go(answer)
+
+            elif answer.startswith("look"):                 # look around the room
+                print_info(cur_room)
+
+            elif answer.startswith("get"):                  # get an item from a room
+                get(answer, cur_room)
+
+            elif answer.startswith("drop"):                 # Extension: drop an item
+                drop(answer, cur_room)
+
+            elif answer.startswith("inventory"):            # show the inventory
+                show_inventory(answer)
+
+            elif answer.startswith("quit"):                 # quit the game
+                quit_game()
+
+            elif answer.startswith("help"):                 # Extension: show help
+                show_help()
+        except (EOFError, KeyboardInterrupt):
+            print("\nUse 'quit' to exit.")
+        
+    sys.exit(0)
+
+def load_map(mapfile):
+    with open(mapfile, "r") as file:
+        map_data = json.load(file)
+    return map_data
+
+if __name__ == "__main__":
+    # Read the map data
     try:
-        path = "C:\\Users\\12722\\anaconda3\\Assignments\\Project\\"
-        with open(path + "loop.map.json", "r") as file:
-            map_data = json.load(file)
+        map_data = load_map(sys.argv[1])
     except FileNotFoundError:
         print("File not found", file=sys.stderr)
         sys.exit(1)
@@ -81,12 +193,6 @@ def main():
     if not validate_map(map_data):
         sys.exit(1)
 
-    # Print the first room
-    start_room = map_data["start"]
-    print_info(start_room, map_data)
-
-    # preparation
-    cur_room = start_room
     inventory = []
     verbs = {
         "go": "direction",
@@ -97,91 +203,5 @@ def main():
         "quit": None,
         "help": None
     } 
-    
-    # loop
-    while True:
-        try:
-            answer = input("What would you like to do?").strip().lower()
-            if answer.startswith("go"):                 # go somewhere
-                parts = answer.split(" ", 1)
-                if len(parts) < 2 or not parts[1]:
-                    print("Sorry, you need to 'go' somewhere.")
-                    continue
-        
-                direction = parts[1]
-                room_info = next((room for room in map_data.get("rooms", []) if room["name"] == cur_room), {})
-                exits = room_info.get("exits", {})
-                if direction not in exits:
-                    print(f"There's no way to go {direction}.")
-                    continue
-                
-                print(f"You go {direction}")
-                cur_room = room_info["exits"].get(direction)
-                print_info(cur_room, map_data)
 
-            elif answer.startswith("look"):                 # look in the room
-                print_info(cur_room, map_data)
-
-            elif answer.startswith("get"):                  # get an item from a room
-                parts = answer.split(" ", 1)
-                if len(parts) < 2 or not parts[1]:
-                    print("Sorry, you need to 'get' something.")
-                    continue
-
-                get_item = parts[1]
-                room_info = next((room for room in map_data.get("rooms", []) if room["name"] == cur_room), {})
-                if "items" not in room_info or not room_info["items"]:
-                    print(f"There's no {get_item} anywhere.")
-                    continue
-
-                print(f"You pick up the {get_item}")
-                inventory.append(get_item)
-                room_info["items"].remove(get_item)
-
-            elif answer.startswith("drop"):                 # drop an item
-                if not inventory:
-                    print("You don't have any item.")
-                    continue
-
-                parts = answer.split(" ", 1)
-                if len(parts) < 2 or not parts[1]:
-                    print("Sorry, you need to 'drop' something.")
-                    continue
-
-                drop_item = parts[1]
-                if drop_item not in inventory:
-                    print(f"You don't have {drop_item}")
-                    continue
-
-                room_info = next((room for room in map_data.get("rooms", []) if room["name"] == cur_room), {})
-                if "items" not in room_info:
-                    room_info["items"] = []
-
-                print(f"You drop the {drop_item}")
-                inventory.remove(drop_item)
-                room_info["items"].append(drop_item)
-
-            elif answer.startswith("inventory"):                    # check inventory
-                print("Inventory: ")
-                for item in inventory:
-                    print("  " + item, end = "\n")
-
-            elif answer.startswith("quit"):                 # quit the game
-                print("Goodbye!")
-                break
-
-            elif answer.startswith("help"):                 # get help
-                print("You can run the following commands: ")
-                for verb, target in verbs.items():
-                    if target:
-                        print(f"  {verb} ...")
-                    else:
-                        print(f"  {verb}")
-
-        except (EOFError, KeyboardInterrupt):
-            print("\nUse 'quit' to exit.")
-        
-    sys.exit(0)
-
-if __name__ == "__main__":
     main()
