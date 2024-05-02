@@ -58,7 +58,11 @@ def print_info(cur_room):
     print(room_info["desc"] + "\n")
     if "items" in room_info and room_info["items"]:
         print("Items:", end = " ")
-        [print(item, end = " ") for item in room_info["items"]]
+        for index, item in enumerate(room_info["items"]):
+            if index != len(room_info["items"]) - 1:
+                print(item, end=", ")
+            else:
+                print(item, end=" ")
         print("\n")
     print("Exits:", end = " ")
     for key in room_info["exits"]:
@@ -69,14 +73,14 @@ def go(answer, cur_room):
     parts = answer.split(" ", 1)
     if len(parts) < 2 or not parts[1]:
         print("Sorry, you need to 'go' somewhere.")
-        return
+        return cur_room
 
     direction = parts[1]
     room_info = next((room for room in map_data.get("rooms", []) if room["name"] == cur_room), {})
     exits = room_info.get("exits", {})
     if direction not in exits:
         print(f"There's no way to go {direction}.")
-        return
+        return cur_room
     
     print(f"You go {direction}")
     cur_room = room_info["exits"].get(direction)
