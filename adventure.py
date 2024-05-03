@@ -111,9 +111,12 @@ class Player:
             print(f"You don't have {item}.")
 
     def show_inventory(self):
-        print("Inventory:")
-        for item in self.inventory:
-            print(f"  {item}")
+        if not self.inventory:
+            print("You're not carrying anything.")
+        else:
+            print("Inventory:")
+            for item in self.inventory:
+                print(f"  {item}")
 
     def help(self):
         print("You can run the following commands: ")
