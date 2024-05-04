@@ -53,11 +53,12 @@ def validate_map(map_data):
         return False
     
 class Room:
-    def __init__(self, name, desc, exits, items=None):
+    def __init__(self, name, desc, exits, items=None, is_locked = None):
         self.name = name
         self.desc = desc
         self.exits = exits
         self.items = items if items else []
+        self.is_locked = is_locked if is_locked else []
     
     def __str__(self):
         exits_str = ' '.join(self.exits.keys())
@@ -71,7 +72,6 @@ class Player:
         
     def print_info(self):
         print(f"> {self.cur_room.name}\n\n{self.cur_room.desc}\n")
-
         # print items (if the current room has items)
         if self.cur_room.items:
             print_items = ', '.join(self.cur_room.items)
@@ -85,8 +85,14 @@ class Player:
 
     def go(self, direction):
         if direction in self.cur_room.exits:
+            pre_room = self.cur_room.exits[direction]
+            if pre_room.is_locked:
+                for item in pre_room.is_locked:
+                    if item not in self.inventory:
+                        print(f"Sorry, the room is locked.")
+                        return
             print(f"You go {direction}.\n")
-            self.cur_room = self.cur_room.exits[direction]
+            self.cur_room = pre_room
             self.print_info()
         else:
             print(f"There's no way to go {direction}.")
@@ -195,7 +201,7 @@ if __name__ == "__main__":
     # Create the Room objects
     rooms = {}              # use a dict to store room objects
     for room in map_data["rooms"]:
-        room_data = Room(room["name"], room["desc"], room["exits"], room.get("items", []))
+        room_data = Room(room["name"], room["desc"], room["exits"], room.get("items", []), room.get("is_locked", []))
         rooms[room["name"]] = room_data
     
     # link rooms
