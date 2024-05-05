@@ -51,6 +51,11 @@ def validate_map(map_data):
     except ValueError as e:
         print(e, file=sys.stderr)
         return False
+
+def load_map(mapfile):
+    with open(mapfile, "r") as file:
+        map_data = json.load(file)
+    return map_data
     
 class Room:
     def __init__(self, name, desc, exits, items=None, is_locked = None):
@@ -60,12 +65,6 @@ class Room:
         self.items = items if items else []
         self.is_locked = is_locked if is_locked else []
     
-    #def __str__(self):
-    
-    #    exits_str = ' '.join(self.exits.keys())
-    #    items_str = ', '.join(self.items) if self.items else "None"
-    #    return f"{self.name}\n\n{self.desc}\n\nItems: {items_str}\n\nExists: {exits_str}\n"
-
 class Player:
     def __init__(self):
         self.cur_room = None
@@ -75,10 +74,8 @@ class Player:
         print(f"> {self.cur_room.name}\n\n{self.cur_room.desc}\n")
         # print items (if the current room has items)
         if self.cur_room.items:
-            print_items = ', '.join(self.cur_room.items)
-            print(f"Items: {print_items}\n")
-        else:
-            print_items = "None"
+            print(f"Items: {', '.join(self.cur_room.items)}\n")
+       
 
         # print exits
         print_exits = ' '.join(self.cur_room.exits.keys())
@@ -87,14 +84,18 @@ class Player:
     def go(self, direction):
         if direction in self.cur_room.exits:
             pre_room = self.cur_room.exits[direction]
-            if pre_room.is_locked:
-                need_items = []
+            if pre_room.is_locked:                  # Extention3: a room is locked and you have to use some items to unlock it.
+                needed_items = []
                 for item in pre_room.is_locked:
                     if item not in self.inventory:
-                        need_items.append(item)
-                if need_items:
-                    print(f"{pre_room.name} is locked. You need {need_items} to unlock.")
+                        needed_items.append(item)
+                    else:
+                        self.inventory.remove(item)
+                if needed_items:
+                    print(f"{pre_room.name} is locked. You should use {', '.join(needed_items)} to unlock.")
                     return
+                print(f"{pre_room.name} is unlocked.")
+
             print(f"You go {direction}.\n")
             self.cur_room = pre_room
             self.print_info()
@@ -156,14 +157,14 @@ def main():
             elif verb == "look":                 # look around the room
                 player.look()
 
-            elif verb == "get":                  # get an item from a room
+            elif verb == "get":                  # get an item from the room
                 if len(answer) < 2:
                     print("Sorry, you need to 'get' something.")
                     continue
                 item = answer[1]
                 player.get(item)
 
-            elif verb == "drop":                 # Extension: drop an item
+            elif verb == "drop":                 # Extension1: drop an item
                 if len(answer) < 2:
                     print("Sorry, you need to 'drop' something.")
                     continue
@@ -177,15 +178,10 @@ def main():
                 print("Goodbye!")
                 break
 
-            elif verb == "help":                 # Extension: show help
+            elif verb == "help":                 # Extension2: show help
                 player.help()
         except (EOFError, KeyboardInterrupt):
             print("\nUse 'quit' to exit.")
-
-def load_map(mapfile):
-    with open(mapfile, "r") as file:
-        map_data = json.load(file)
-    return map_data
 
 if __name__ == "__main__":
     # Read the map data
@@ -221,6 +217,7 @@ if __name__ == "__main__":
     # print the initial room's information
     player.print_info()
 
+    # all the verbs that players can use
     verbs = {
         "go": "direction",
         "get": "item",
