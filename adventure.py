@@ -91,12 +91,14 @@ class Player:
                 for item in pre_room.is_locked:
                     if item not in self.inventory:
                         needed_items.append(item)
-                    else:
-                        self.inventory.remove(item)
                 if needed_items:
                     print(f"{pre_room.name} is locked. You should use {', '.join(needed_items)} to unlock.")
                     return
-                print(f"{pre_room.name} is unlocked.")
+                else:
+                    for item in pre_room.is_locked:
+                        self.inventory.remove(item)
+                    self.cur_room.exits[direction].is_locked = []
+                    print(f"{pre_room.name} is unlocked.")
 
             print(f"You go {direction}.\n")
             self.cur_room = pre_room
@@ -146,7 +148,7 @@ def main():
     # Play the game
     while True:
         try:
-            answer = input("What would you like to do? ").strip().lower().split()
+            answer = input("What would you like to do? ").strip().lower().split(maxsplit = 1)
 
             if not answer:
                 continue
@@ -185,6 +187,10 @@ def main():
 
             elif verb == "help":                 # Extension2: show help
                 player.help()
+            
+            else:
+                print("Can't understand your command. You can use 'help'.")
+
         except (EOFError, KeyboardInterrupt):
             print("\nUse 'quit' to exit.")
 

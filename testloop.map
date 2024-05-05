@@ -4,24 +4,73 @@
         {
             "name": "A white room",
             "desc": "You are in a simple room with white walls.",
-            "exits": {"north": "A blue room", "east": "A red room"}
+            "exits": {"north": "A blue room", "south": "A greenhouse"}
         },
         {
             "name": "A blue room",
-            "desc": "This room is simple, too, but with blue walls.",
-            "exits": { "east": "A green room", "south": "A white room" }
+            "desc": "There is a pond in front of you.",
+            "exits": { "south": "A white room", "east": "A green room"},
+            "items": ["water"]
         },
         {
             "name": "A green room", 
-            "desc": "You are in a simple room, with bright green walls.",
-            "exits": { "west": "A blue room", "south": "A red room" },
-            "items": []
+            "desc": "This room is full of flowers.",
+            "exits": { "west": "A blue room"},
+            "items": ["seeds"]
         },
         {
-            "name": "A red room", 
-            "desc": "This room is fancy. It's red!",
-            "exits": { "north": "A green room", "west": "A white room" },
-            "items": ["rose", "keys"]
+            "name": "A greenhouse", 
+            "desc": "You plant the seeds and roses grow up.",
+            "exits": { "north": "A white room", "down": "An empty room" },
+            "items": ["roses"],
+            "is_locked": ["water", "seeds"]
+        },
+        {
+            "name": "An empty room",
+            "desc": "You are in an empty room. There are three doors with different colors.",
+            "exits": {"up": "A greenhouse", "brown": "A rich room", "grey": "A warehouse", "purple": "A myserious room", "down": "A safe room"}
+        },
+        {
+            "name": "A rich room", 
+            "desc": "There is a pile of dirt. You use the shovel and find something.",
+            "exits": { "out": "An empty room" },
+            "items": ["gold coins"],
+            "is_locked": ["shovel"]
+        },
+        {
+            "name": "A warehouse", 
+            "desc": "This room is piled with stuff. You find a shovel in the corner.",
+            "exits": { "out": "An empty room" },
+            "items": ["shovel"]
+        },
+        {
+            "name": "A myserious room", 
+            "desc": "You use gold coins to make magic appear.",
+            "exits": { "out": "An empty room" },
+            "items": ["sword"],
+            "is_locked": ["gold coins"]
+        },
+        {
+            "name": "A safe room",
+            "desc": "You are in the safe room. It's very dangerous to go down. Don't do that!",
+            "exits": {"up": "An empty room", "down": "A dangerous room", "east": "A room for relaxation"}
+        },
+        {
+            "name": "A dangerous room", 
+            "desc": "You are fooled! This room is actually not dangerous! You find a key.",
+            "exits": { "up": "A safe room"},
+            "items": ["key"]
+        },
+        {
+            "name": "A room for relaxation", 
+            "desc": "Warning: you are close to the Boss!!! Please prepare yourself!",
+            "exits": { "west": "A safe room", "east": "The Boss room"}
+        },
+        {
+            "name": "The Boss room", 
+            "desc": "There is a monster. You use the sword to kill it. During the fight, you drop your roses.",
+            "exits": { "west": "A room for relaxation"},
+            "is_locked": ["key", "sword"]
         }
     ]
 }
