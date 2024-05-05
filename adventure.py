@@ -72,11 +72,11 @@ class Player:
         
     def print_info(self):
         print(f"> {self.cur_room.name}\n\n{self.cur_room.desc}\n")
+
         # print items (if the current room has items)
         if self.cur_room.items:
             print(f"Items: {', '.join(self.cur_room.items)}\n")
        
-
         # print exits
         print_exits = ' '.join(self.cur_room.exits.keys())
         print(f"Exits: {print_exits}\n")
@@ -84,7 +84,9 @@ class Player:
     def go(self, direction):
         if direction in self.cur_room.exits:
             pre_room = self.cur_room.exits[direction]
-            if pre_room.is_locked:                  # Extention3: a room is locked and you have to use some items to unlock it.
+
+            # Extention3: a room is locked and you have to use some items to unlock it.
+            if pre_room.is_locked:                  
                 needed_items = []
                 for item in pre_room.is_locked:
                     if item not in self.inventory:
@@ -104,6 +106,9 @@ class Player:
     
     def look(self):
         self.print_info()
+    
+    def quit(self):
+        print("Goodbye!")
 
     def get(self, item):
         if item in self.cur_room.items:
@@ -175,7 +180,7 @@ def main():
                 player.show_inventory()
 
             elif verb == "quit":                 # quit the game
-                print("Goodbye!")
+                player.quit()
                 break
 
             elif verb == "help":                 # Extension2: show help
