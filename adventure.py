@@ -60,10 +60,11 @@ class Room:
         self.items = items if items else []
         self.is_locked = is_locked if is_locked else []
     
-    def __str__(self):
-        exits_str = ' '.join(self.exits.keys())
-        items_str = ', '.join(self.items) if self.items else "None"
-        return f"{self.name}\n\n{self.desc}\n\nItems: {items_str}\n\nExists: {exits_str}\n"
+    #def __str__(self):
+    
+    #    exits_str = ' '.join(self.exits.keys())
+    #    items_str = ', '.join(self.items) if self.items else "None"
+    #    return f"{self.name}\n\n{self.desc}\n\nItems: {items_str}\n\nExists: {exits_str}\n"
 
 class Player:
     def __init__(self):
@@ -87,10 +88,13 @@ class Player:
         if direction in self.cur_room.exits:
             pre_room = self.cur_room.exits[direction]
             if pre_room.is_locked:
+                need_items = []
                 for item in pre_room.is_locked:
                     if item not in self.inventory:
-                        print(f"Sorry, the room is locked.")
-                        return
+                        need_items.append(item)
+                if need_items:
+                    print(f"{pre_room.name} is locked. You need {need_items} to unlock.")
+                    return
             print(f"You go {direction}.\n")
             self.cur_room = pre_room
             self.print_info()
